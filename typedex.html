@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测对儿 · 型号图鉴</title>
+<style>
+  :root{
+    --bg:#14111c; --panel:#1c1828; --panel2:#221d31; --line:rgba(212,165,116,.18);
+    --gold:#d4a574; --gold-2:#e8c98a; --gold-soft:rgba(212,165,116,.10); --ink:#ece6d8; --muted:#8f836c;
+    --e:#7aa2f7; --f:#f7768e; --o:#73daca; --c:#e0af68;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#241d33,#14111c 60%);
+    color:var(--ink);font-size:16px;line-height:1.6;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto;padding:34px 20px 90px}
+  .brand{font-size:13px;letter-spacing:.3em;color:var(--gold);font-weight:600}
+  h1{font-size:30px;margin:8px 0 8px;letter-spacing:-.3px}
+  .sub{color:var(--muted);margin:0 0 4px;font-size:15px}
+  .sub b{color:var(--gold)}
+
+  section{margin-top:30px}
+  .sec-t{font-size:18px;font-weight:600;margin-bottom:4px}
+  .sec-q{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+
+  /* 4 维度 */
+  .dims{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+  .dimc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 16px}
+  .dimc .pos{font-size:11.5px;color:var(--muted);letter-spacing:.1em}
+  .dimc .ll{font-size:22px;font-weight:800;margin:3px 0 2px;font-variant-numeric:tabular-nums}
+  .dimc .nm{font-size:13px;color:var(--gold-2);font-weight:600;margin-bottom:8px}
+  .dimc .pole{font-size:12.5px;color:var(--ink);margin-top:3px}
+  .dimc .pole .k{font-weight:800;margin-right:6px}
+
+  /* 16 型 */
+  .types{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  @media(max-width:600px){.types{grid-template-columns:1fr}}
+  .tcard{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 15px}
+  .tcard .top{display:flex;align-items:baseline;gap:9px}
+  .tcard .code{font-size:13px;font-weight:800;letter-spacing:.12em;font-variant-numeric:tabular-nums}
+  .tcard .nick{font-size:15px;font-weight:700;color:var(--gold-2)}
+  .tcard .por{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.55}
+  /* 字母上色 */
+  .L0{color:var(--e)} .L1{color:var(--f)} .L2{color:var(--o)} .L3{color:var(--c)}
+
+  /* CP */
+  .cp-group{font-size:12.5px;letter-spacing:.08em;color:var(--gold);margin:18px 0 10px;font-weight:700}
+  .cps{display:grid;gap:8px}
+  .cpc{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 14px}
+  .cpc .pair{font-size:13.5px;font-weight:600}
+  .cpc .pair .c{font-size:11.5px;color:var(--muted);font-weight:500;letter-spacing:.08em}
+  .cpc .pair .x{color:var(--gold);margin:0 6px}
+  .cpc .desc{font-size:12.5px;color:var(--muted);margin-top:4px}
+
+  .nav{margin-top:32px;display:flex;gap:12px;flex-wrap:wrap}
+  .nav a{flex:1;min-width:170px;text-decoration:none;background:var(--panel);border:1px solid var(--line);
+    border-radius:13px;padding:14px 16px;color:var(--gold-2);font-weight:600;font-size:14px}
+  .nav a span{display:block;color:var(--muted);font-weight:400;font-size:12.5px;margin-top:3px}
+  .footer{margin-top:26px;font-size:12.5px;color:var(--muted);line-height:1.7}
+  .footer b{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">测对儿 · CEDUI</div>
+  <h1>型号图鉴</h1>
+  <p class="sub">描述 → 算法判定一个 <b>4 字母型号</b>(类 MBTI)。<b>16 种型号</b> · <b>32 种 CP 组合</b>。你和 TA 的型号怎么来的、配在一起什么样,这页全展开。</p>
+
+  <!-- ① 4 字母怎么读 -->
+  <section>
+    <div class="sec-t">① 4 个字母怎么读</div>
+    <div class="sec-q">每位是一个独立维度,由你勾选的原型 + 标签累加判定(确定性算法,同输入同结果)。</div>
+    <div class="dims" id="dims"></div>
+  </section>
+
+  <!-- ② 16 型 -->
+  <section>
+    <div class="sec-t">② 16 种型号</div>
+    <div class="sec-q">字母按维度上色:<span class="L0">E/I</span> · <span class="L1">F/S</span> · <span class="L2">O/G</span> · <span class="L3">C/A</span></div>
+    <div class="types" id="types"></div>
+  </section>
+
+  <!-- ③ 32 CP -->
+  <section>
+    <div class="sec-t">③ 32 种 CP 组合</div>
+    <div class="sec-q">两个型号配在一起的化学反应。报告页的「CP 名」就来自这张表。</div>
+    <div id="cps"></div>
+  </section>
+
+  <div class="nav">
+    <a href="index.html">← 回去测一次 <span>判定你和 TA 的型号</span></a>
+    <a href="xray.html">🔍 Agent 透视 <span>侧写怎么被 7 个 Agent 写出来</span></a>
+    <a href="eval.html">📊 Eval <span>这套 AI 怎么验证</span></a>
+  </div>
+
+  <div class="footer">
+    <b>为什么型号是确定性的:</b> 4 字母由打分算法判定、契合分明细可验证,换底层模型分数零回归;LLM 只负责把型号"讲成人话"(画像 / 侧写)。型号数据与产品主程序同源。
+  </div>
+
+</div>
+
+<script>
+const TYPES={EFOC:{nickname:'夏日烟花',portrait:'一靠近就掏心掏肺、到处安利你,热情来得又快又亮——只是这股热度容易三分钟。'},EFOA:{nickname:'黏黏糖',portrait:'黏人、爱表达、需要随时确认自己还被在意;热得最快,也最怕被晾在一边。'},EFGC:{nickname:'嘴甜的猫',portrait:'嘴上热络会哄人,心里却留着一手;先试探你的态度,再决定掏多少真心。'},EFGA:{nickname:'高敏感火药桶',portrait:'前一秒热络贴心,没等到回应下一秒就炸;情绪起伏大,对被冷落格外敏感。'},ESOC:{nickname:'温柔老火汤',portrait:'不上头,但会温和、持续地表达在意;把你随口说过的小事记在心上,慢慢加温。'},ESOA:{nickname:'犹豫表达者',portrait:'愿意靠近、也想说真心话,却总在最后一步犹豫,把"要不要开口"反复纠结很久。'},ESGC:{nickname:'热闹的孤岛',portrait:'人群里很能聊,私下却很少深交;对谁都温和,但走进心里的位置不轻易给。'},ESGA:{nickname:'矛盾综合体',portrait:'越在意越嘴硬,想靠近又怕受伤;嘴上说"无所谓",心里其实翻来覆去。'},IFOC:{nickname:'行动派老虎',portrait:'不太说,全用行动:记得你的喜好、默默把事办妥;在意来得又快又稳。'},IFOA:{nickname:'心急嘴慢',portrait:'心里急、嘴上慢,在意得很却说不出口;等不到回应会自己先焦躁起来。'},IFGC:{nickname:'上头的冰山',portrait:'很快就对你上心,表面却装作没事;内心戏一大段,面上一片平静。'},IFGA:{nickname:'三天热三天躲',portrait:'又渴望靠近又害怕亲密;今天热乎,明天就缩回去,反复拉扯自己。'},ISOC:{nickname:'老干部',portrait:'不擅甜言蜜语,但稳、可靠、长情;更愿意用"我罩着你"这种实在的方式对你好。'},ISOA:{nickname:'沉默观察家',portrait:'话不多,却一直默默观察你、记住你的细节;在意都藏着,很少说出口。'},ISGC:{nickname:'深海大鱼',portrait:'「不主动、不拒绝、不解释」,看着佛系随缘;但你其实早在 TA 心里那份"重要的人"名单上。'},ISGA:{nickname:'深海冰山',portrait:'嘴硬王者:把在意压到最深、面上最淡,心里却最当回事;真心要很久才肯露一点。'}};
+const CP_PAIRS={'EFOC|EFOC':'短暂的烟花夫妇——三个月浓情,第四个月平淡','EFOA|EFOA':'互相查岗的小黏黏糖——24 小时都在确认彼此','EFGC|EFGC':'互试探的嘴甜猫——情话来回打,谁都不真心','EFGA|EFGA':'易燃易爆炸——三天蜜月第四天战争','ESOC|ESOC':'慢慢炖的老火汤——结婚的最佳组合','ESOA|ESOA':'暧昧期 8 年战略部——永远在临门一脚','ESGC|ESGC':'两个嘴热心冷——朋友圈互动多,私聊冷淡','ESGA|ESGA':'双向矛盾综合症——爱却互相伤害','IFOC|IFOC':'两只默默上头的老虎——都用行动表达,没人说"我爱你"','IFOA|IFOA':'都急但都说不出来——心急八百回合','IFGC|IFGC':'两座装高冷的冰山——明明都上头都装无所谓','IFGA|IFGA':'上头后悔同步过山车——周一蜜月周四冷战','ISOC|ISOC':'两个老干部——不浪漫但稳定一辈子','ISOA|ISOA':'双向沉默观察家——都在意都不说','ISGC|ISGC':'双深海平行——海底各过各的','ISGA|ISGA':'平行宇宙的两个老登——彼此暗恋 5 年,谁都不先说','EFOC|ISGA':'极昼遇极夜——你想抱、TA 想躲,但凌晨 3 点 TA 看了你 38 次朋友圈','EFOA|ISGA':'单方面拷打——你越问"在吗",TA 越潜水','EFOC|ISOC':'你嘴甜 TA 手勤——你天天说爱、TA 默默接送','EFOA|ISOC':'黏黏糖泡老火汤——你越粘 TA 越死忠','ESOC|IFGC':'TA 是你的解药——你慢慢炖、TA 慢慢化','ESOC|ISGA':'暖气片融化冰山——耗时但有效','EFOA|ISGC':'一推一拉的拉锯战——你越粘、TA 越想钓鱼竿在手','ESOA|IFGA':'双焦虑暧昧期——来回打架的小恋人','EFGA|ISOC':'老干部 × 火药桶——一个稳一个炸,TA 在用爆炸告诉你 TA 在乎','EFOC|ESOC':'烟花 × 老火汤——你冲他慢,但他记得你每一句','EFOA|IFOC':'默默上头 × 黏腻糖——你不说我都黏到你了','EFGA|ISGC':'火药桶 × 深海大鱼——你炸,TA 不接招,你更炸','ESOA|IFGC':'装冷的冰山 × 犹豫表达者——双方都在等对方先开口','ESGC|ISOA':'热闹孤岛 × 沉默观察家——表面相敬如宾,私下都在偷看','EFGC|ISGA':'嘴甜的猫 × 深海冰山——你撒娇试探、TA 装没看见但记了一辈子','ESGA|IFOC':'矛盾综合体 × 行动派老虎——你嘴硬一万句,TA 手已经把饭做好了'};
+
+// 4 维度说明（与 inferType / COMPAT_DIMS 的维度一一对应）
+const DIMS = [
+  { pos:'第 1 位', letters:'E / I', name:'表达欲', cls:'L0', a:['E','外放直给,情绪挂脸上'], b:['I','内敛克制,用行动说话'] },
+  { pos:'第 2 位', letters:'F / S', name:'升温节奏', cls:'L1', a:['F','快热上头,来得又快又猛'], b:['S','慢热稳走,慢慢加温'] },
+  { pos:'第 3 位', letters:'O / G', name:'坦诚度', cls:'L2', a:['O','敞开坦白,有话直说'], b:['G','留一手,先试探再交心'] },
+  { pos:'第 4 位', letters:'C / A', name:'安全感', cls:'L3', a:['C','钝感淡定,不易慌'], b:['A','高敏易慌,怕被晾着'] },
+];
+
+const $ = s => document.querySelector(s);
+
+// 渲染维度
+$('#dims').innerHTML = DIMS.map(d => `
+  <div class="dimc">
+    <div class="pos">${d.pos}</div>
+    <div class="ll ${d.cls}">${d.letters}</div>
+    <div class="nm">${d.name}</div>
+    <div class="pole"><span class="k ${d.cls}">${d.a[0]}</span>${d.a[1]}</div>
+    <div class="pole"><span class="k ${d.cls}">${d.b[0]}</span>${d.b[1]}</div>
+  </div>`).join('');
+
+// 给 4 字母上色
+const colorCode = code => [...code].map((ch,i)=>`<span class="L${i}">${ch}</span>`).join('');
+
+// 渲染 16 型（按 E 开头在前，稳定排序）
+const order = Object.keys(TYPES).sort();
+$('#types').innerHTML = order.map(code => `
+  <div class="tcard">
+    <div class="top"><span class="code">${colorCode(code)}</span><span class="nick">${TYPES[code].nickname}</span></div>
+    <div class="por">${TYPES[code].portrait}</div>
+  </div>`).join('');
+
+// 渲染 32 CP（同型 / 异型分组）
+const cpKeys = Object.keys(CP_PAIRS);
+const same = cpKeys.filter(k => { const [a,b]=k.split('|'); return a===b; });
+const diff = cpKeys.filter(k => { const [a,b]=k.split('|'); return a!==b; });
+const cpCard = k => {
+  const [a,b] = k.split('|');
+  return `<div class="cpc">
+    <div class="pair">${TYPES[a].nickname}<span class="c"> ${colorCode(a)}</span><span class="x">×</span>${TYPES[b].nickname}<span class="c"> ${colorCode(b)}</span></div>
+    <div class="desc">${CP_PAIRS[k]}</div>
+  </div>`;
+};
+$('#cps').innerHTML =
+  `<div class="cp-group">同型相遇 · ${same.length}</div><div class="cps">${same.map(cpCard).join('')}</div>` +
+  `<div class="cp-group">异型碰撞 · ${diff.length}</div><div class="cps">${diff.map(cpCard).join('')}</div>`;
+</script>
+</body>
+</html>

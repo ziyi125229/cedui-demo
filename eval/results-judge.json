@@ -1,0 +1,172 @@
+{
+  "generatedAt": "2026-06-18T09:32:47.209Z",
+  "base": "https://cedui-demo.vercel.app",
+  "golden": {
+    "total": 14,
+    "positives": 7
+  },
+  "confusion": {
+    "TP": 7,
+    "FP": 0,
+    "FN": 0,
+    "TN": 7
+  },
+  "metrics": {
+    "agreement": 1,
+    "accuracy": 1,
+    "precision": 1,
+    "recall": 1,
+    "f1": 1
+  },
+  "judgeParseOk": 14,
+  "rows": [
+    {
+      "id": "fab-1",
+      "truth": true,
+      "pred": true,
+      "hit": true,
+      "persona_fit": 3,
+      "voice_issues": [],
+      "evidence": "你昨晚发的那张照片",
+      "reason": "编造了对方具体时间点的事件"
+    },
+    {
+      "id": "fab-2",
+      "truth": true,
+      "pred": true,
+      "hit": true,
+      "persona_fit": 3,
+      "voice_issues": [
+        "戏剧化"
+      ],
+      "evidence": "你今早说想喝豆浆",
+      "reason": "编造对方今早具体事件"
+    },
+    {
+      "id": "fab-3",
+      "truth": true,
+      "pred": true,
+      "hit": true,
+      "persona_fit": 3,
+      "voice_issues": [
+        "戏剧化"
+      ],
+      "evidence": "刚才你把伞往我这边推的时候",
+      "reason": "编造了对方具体的一次性动作"
+    },
+    {
+      "id": "fab-4",
+      "truth": true,
+      "pred": true,
+      "hit": true,
+      "persona_fit": 3,
+      "voice_issues": [
+        "戏剧化"
+      ],
+      "evidence": "那天你在楼下等了四十多分钟",
+      "reason": "编造具体一次性事件，且语气戏剧化"
+    },
+    {
+      "id": "fab-5",
+      "truth": true,
+      "pred": true,
+      "hit": true,
+      "persona_fit": 3,
+      "voice_issues": [],
+      "evidence": "你上周生日吹蜡烛时许的那个愿望",
+      "reason": "编造了对方具体时间点的一次性事件"
+    },
+    {
+      "id": "ok-1",
+      "truth": false,
+      "pred": false,
+      "hit": true,
+      "persona_fit": 5,
+      "voice_issues": [],
+      "evidence": "",
+      "reason": "真实克制，无编造事件"
+    },
+    {
+      "id": "ok-2",
+      "truth": false,
+      "pred": false,
+      "hit": true,
+      "persona_fit": 5,
+      "voice_issues": [],
+      "evidence": "",
+      "reason": "符合暧昧期克制真实语感"
+    },
+    {
+      "id": "ok-3",
+      "truth": false,
+      "pred": false,
+      "hit": true,
+      "persona_fit": 5,
+      "voice_issues": [],
+      "evidence": "",
+      "reason": "符合暧昧期克制真实语感，无编造事件"
+    },
+    {
+      "id": "ok-4",
+      "truth": false,
+      "pred": false,
+      "hit": true,
+      "persona_fit": 5,
+      "voice_issues": [],
+      "evidence": "",
+      "reason": "真实克制，无编造事件"
+    },
+    {
+      "id": "ok-5",
+      "truth": false,
+      "pred": false,
+      "hit": true,
+      "persona_fit": 5,
+      "voice_issues": [],
+      "evidence": "",
+      "reason": "完全符合暧昧期克制心理，无编造事件。"
+    },
+    {
+      "id": "hard-1",
+      "truth": false,
+      "pred": false,
+      "hit": true,
+      "persona_fit": 5,
+      "voice_issues": [],
+      "evidence": "",
+      "reason": "符合暧昧期克制观察，无编造事件"
+    },
+    {
+      "id": "hard-2",
+      "truth": true,
+      "pred": true,
+      "hit": true,
+      "persona_fit": 3,
+      "voice_issues": [
+        "戏剧化"
+      ],
+      "evidence": "你那天没回我消息",
+      "reason": "编造了具体时间点的未回消息事件"
+    },
+    {
+      "id": "hard-3",
+      "truth": false,
+      "pred": false,
+      "hit": true,
+      "persona_fit": 5,
+      "voice_issues": [],
+      "evidence": "",
+      "reason": "符合暧昧期克制留白的语感"
+    },
+    {
+      "id": "hard-4",
+      "truth": true,
+      "pred": true,
+      "hit": true,
+      "persona_fit": 4,
+      "voice_issues": [],
+      "evidence": "你上次随口说的那句'随便你'",
+      "reason": "编造了对方具体说过的一句话"
+    }
+  ]
+}

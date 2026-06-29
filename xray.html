@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测对儿 · Agent 透视</title>
+<style>
+  :root{
+    --bg:#14111c; --panel:#1c1828; --panel2:#221d31; --line:rgba(212,165,116,.18);
+    --gold:#d4a574; --gold-soft:rgba(212,165,116,.10); --ink:#ece6d8; --muted:#8f836c;
+    --q:#7aa2f7; --heart:#f7768e; --verdict:#e0af68; --diary:#9d7cd8; --diag:#73daca;
+    --run:#e0af68;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#241d33,#14111c 60%);
+    color:var(--ink);font-size:16px;line-height:1.6;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 90px}
+  .brand{font-size:13px;letter-spacing:.3em;color:var(--gold);font-weight:600}
+  h1{font-size:30px;margin:8px 0 8px;letter-spacing:-.3px}
+  .sub{color:var(--muted);margin:0 0 14px;font-size:15px}
+  .real-note{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--gold);
+    background:var(--gold-soft);border:1px solid var(--line);border-radius:99px;padding:5px 13px}
+  .dot{width:7px;height:7px;border-radius:50%;background:#73daca;box-shadow:0 0 8px #73daca}
+  .scenario{margin:18px 0 8px;font-size:14px;color:var(--muted)}
+  .scenario b{color:var(--ink)}
+  .pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:3px 10px;margin:0 2px;font-size:13px;color:var(--ink)}
+
+  section{margin-top:34px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 24px}
+  .sec-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .sec-t{font-size:18px;font-weight:600}
+  .sec-q{color:var(--muted);font-size:14px;margin-top:2px}
+  .pipe-tag{font-size:11.5px;color:var(--gold);border:1px solid var(--line);border-radius:99px;padding:3px 10px}
+
+  button.run{font:inherit;font-weight:600;cursor:pointer;border:none;border-radius:10px;
+    padding:9px 18px;font-size:14px;background:var(--gold);color:#1a1320}
+  button.run:disabled{opacity:.45;cursor:default}
+
+  /* pipeline graph */
+  .graph{margin-top:20px}
+  .row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .par-label{text-align:center;font-size:11.5px;color:var(--muted);letter-spacing:.1em;margin:0 0 8px}
+  .arrow{text-align:center;color:var(--muted);font-size:20px;margin:6px 0;opacity:.5}
+
+  .node{flex:1;min-width:150px;max-width:230px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:13px;padding:13px 15px;position:relative;transition:.25s;opacity:.5}
+  .node.active,.node.done{opacity:1}
+  .node.active{border-color:var(--run);box-shadow:0 0 0 1px var(--run),0 0 22px rgba(224,175,104,.25);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 1px var(--run),0 0 18px rgba(224,175,104,.18)}50%{box-shadow:0 0 0 1px var(--run),0 0 30px rgba(224,175,104,.4)}}
+  .node .nm{font-weight:700;font-size:14px;display:flex;align-items:center;gap:7px}
+  .node .role{font-size:12px;color:var(--muted);margin-top:2px}
+  .node .tag{position:absolute;top:-9px;right:12px;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;background:#1a1320}
+  .led{width:8px;height:8px;border-radius:50%;background:#3a3348;flex:0 0 8px}
+  .node.active .led{background:var(--run);box-shadow:0 0 8px var(--run)}
+  .node.done .led{background:#73daca;box-shadow:0 0 8px #73daca}
+  .node .ms{font-size:11px;color:var(--gold);margin-top:7px;font-variant-numeric:tabular-nums;min-height:14px}
+  .nq .nm{color:var(--q)} .nheart .nm{color:var(--heart)} .nverdict .nm{color:var(--verdict)}
+  .ndiary .nm{color:var(--diary)} .ndiag .nm{color:var(--diag)}
+
+  /* output cards */
+  .outs{margin-top:18px;display:grid;gap:11px}
+  .out{background:#17131f;border:1px solid var(--line);border-radius:12px;padding:13px 16px;
+    opacity:0;transform:translateY(8px);transition:.4s}
+  .out.show{opacity:1;transform:none}
+  .out .lbl{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:5px}
+  .out .lbl b{color:var(--ink)}
+  .out .big{font-size:24px;font-weight:800;color:var(--heart);letter-spacing:-.5px}
+  .out .why{font-size:13px;color:var(--muted);margin-top:5px}
+  .out .verdict-line{font-size:16px;color:var(--verdict);font-weight:600}
+  .diary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+  @media(max-width:620px){.diary-grid{grid-template-columns:1fr}}
+  .dcard{background:#17131f;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+    opacity:0;transform:translateY(8px);transition:.4s}
+  .dcard.show{opacity:1;transform:none}
+  .dcard .time{font-size:12px;color:var(--diary);font-weight:700}
+  .dcard .theme{font-size:12.5px;color:var(--muted);margin:3px 0 7px}
+  .dcard .txt{font-size:13px;line-height:1.55;color:var(--ink)}
+  .diag{margin-top:12px;background:linear-gradient(135deg,#1f1a2e,#17131f);border:1px solid var(--line);
+    border-radius:13px;padding:15px 18px;opacity:0;transform:translateY(8px);transition:.4s}
+  .diag.show{opacity:1;transform:none}
+  .diag .hl{font-size:17px;font-weight:700;color:var(--diag)}
+  .diag .bd{font-size:13.5px;color:var(--ink);margin-top:6px}
+
+  .insight{margin-top:16px;font-size:13px;color:var(--muted);border-left:2px solid var(--gold);padding-left:12px}
+  .insight b{color:var(--gold)}
+
+  .legend{margin-top:8px;display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:12px;height:12px;border-radius:4px}
+
+  /* roster */
+  .roster{margin-top:34px}
+  .roster h3{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:0 0 14px}
+  .agents{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:620px){.agents{grid-template-columns:1fr}}
+  .ag{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 14px;font-size:13px}
+  .ag b{color:var(--ink)} .ag span{color:var(--muted)}
+  .footer{margin-top:30px;font-size:12.5px;color:var(--muted);line-height:1.7}
+  .footer b{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">测对儿 · CEDUI</div>
+  <h1>Agent 透视</h1>
+  <p class="sub">看见 7 个职责单一的 AI Agent 怎么<b style="color:var(--gold)">并行 / 串行</b>协作,把"两个人"变成一份 AI 关系侧写。</p>
+  <span class="real-note"><span class="dot"></span> 真实后端运行回放 · 含真实耗时(本次用 deepseek-chat 实跑)</span>
+
+  <div class="scenario">本次输入:<span class="pill">你 · 黏黏糖 EFOA</span> × <span class="pill">TA · 深海冰山 ISGA</span> · 关系:<span class="pill">暧昧期</span></div>
+
+  <!-- ============ Pipeline 1 · Scan ============ -->
+  <section id="sec-scan">
+    <div class="sec-h">
+      <div>
+        <div class="sec-t">① 心动浓度扫描 <span class="pipe-tag">Q + Heart 并行 → Verdict</span></div>
+        <div class="sec-q">用户问:"TA 还想我吗?"</div>
+      </div>
+      <button class="run" id="run-scan">▶ 运行</button>
+    </div>
+
+    <div class="graph">
+      <div class="par-label">↓ 两个 Agent 同时跑(输入互不依赖)</div>
+      <div class="row">
+        <div class="node nq" id="n-q"><span class="tag" style="color:var(--q)">并行</span>
+          <div class="nm"><span class="led"></span>Q-Agent</div><div class="role">解析问题意图</div><div class="ms" id="ms-q"></div></div>
+        <div class="node nheart" id="n-heart"><span class="tag" style="color:var(--heart)">并行</span>
+          <div class="nm"><span class="led"></span>Heart-Agent</div><div class="role">算 0-95 心动浓度</div><div class="ms" id="ms-heart"></div></div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="row">
+        <div class="node nverdict" id="n-verdict" style="max-width:300px"><span class="tag" style="color:var(--verdict)">串行 · 等齐</span>
+          <div class="nm"><span class="led"></span>Verdict-Agent</div><div class="role">浓度+意图 → 锐利判词</div><div class="ms" id="ms-verdict"></div></div>
+      </div>
+    </div>
+
+    <div class="outs" id="outs-scan">
+      <div class="out" id="out-q"><div class="lbl">Q-Agent 输出 · <b>结构化意图</b></div><div id="out-q-body"></div></div>
+      <div class="out" id="out-heart"><div class="lbl">Heart-Agent 输出 · <b>心动浓度(LLM 推演 + 可解释理由,数值钳制在 5-95)</b></div>
+        <div class="big" id="out-heart-pct"></div><div class="why" id="out-heart-why"></div></div>
+      <div class="out" id="out-verdict"><div class="lbl">Verdict-Agent 输出 · <b>判词</b></div><div class="verdict-line" id="out-verdict-body"></div></div>
+    </div>
+    <div class="insight" id="insight-scan"></div>
+  </section>
+
+  <!-- ============ Pipeline 2 · Diary ============ -->
+  <section id="sec-diary">
+    <div class="sec-h">
+      <div>
+        <div class="sec-t">② TA 没说出口的心里话 <span class="pipe-tag">Diary ×3 并行 → Diagnosis</span></div>
+        <div class="sec-q">3 段不同时段的心里话,并行生成后综合诊断</div>
+      </div>
+      <button class="run" id="run-diary">▶ 运行</button>
+    </div>
+
+    <div class="graph">
+      <div class="par-label">↓ 3 个 Diary-Agent 同时跑(不同时段/情绪,互不依赖)</div>
+      <div class="row">
+        <div class="node ndiary" id="n-d0"><span class="tag" style="color:var(--diary)">并行</span>
+          <div class="nm"><span class="led"></span>Diary · 清晨</div><div class="role">07:23</div><div class="ms" id="ms-d0"></div></div>
+        <div class="node ndiary" id="n-d1"><span class="tag" style="color:var(--diary)">并行</span>
+          <div class="nm"><span class="led"></span>Diary · 午后</div><div class="role">14:32</div><div class="ms" id="ms-d1"></div></div>
+        <div class="node ndiary" id="n-d2"><span class="tag" style="color:var(--diary)">并行</span>
+          <div class="nm"><span class="led"></span>Diary · 凌晨</div><div class="role">01:48</div><div class="ms" id="ms-d2"></div></div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="row">
+        <div class="node ndiag" id="n-diag" style="max-width:300px"><span class="tag" style="color:var(--diag)">串行 · 等 3 段齐</span>
+          <div class="nm"><span class="led"></span>Diagnosis-Agent</div><div class="role">综合 3 段 → 判读</div><div class="ms" id="ms-diag"></div></div>
+      </div>
+    </div>
+
+    <div class="diary-grid" id="diary-cards"></div>
+    <div class="diag" id="out-diag"><div class="hl" id="diag-hl"></div><div class="bd" id="diag-bd"></div></div>
+    <div class="insight" id="insight-diary"></div>
+  </section>
+
+  <div class="legend">
+    <span><span class="sw" style="background:var(--run)"></span>运行中</span>
+    <span><span class="sw" style="background:#73daca"></span>完成</span>
+    <span><span class="sw" style="background:#3a3348"></span>待运行</span>
+  </div>
+
+  <!-- ============ Roster ============ -->
+  <div class="roster">
+    <h3>7 个 Agent · 各管一件事</h3>
+    <div class="agents">
+      <div class="ag"><b>Q-Agent</b> · <span>解析问题意图</span></div>
+      <div class="ag"><b>Heart-Agent</b> · <span>算心动浓度数字</span></div>
+      <div class="ag"><b>Verdict-Agent</b> · <span>写锐利判词</span></div>
+      <div class="ag"><b>T-Agent</b> · <span>以 TA 口吻生成回话</span></div>
+      <div class="ag"><b>P-Agent</b> · <span>把回话精炼到符合人设</span></div>
+      <div class="ag"><b>Diary-Agent</b> · <span>写一段"没说出口的话"</span></div>
+      <div class="ag"><b>Diagnosis-Agent</b> · <span>综合多段做判读</span></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <b>为什么拆成 7 个 Agent 而不是一个大 prompt:</b> 职责单一 → 每个 Agent 输出更小更稳、可并发省延迟、可独立 A/B 与 eval。可靠性不是拍脑袋:<a href="eval.html" style="color:var(--gold-2)">离线 eval 实测 28/28 调用返回合法结构 →</a>
+    <br><b>可验证算分:</b> 契合分走确定性算法、明细 100% 可验证;心动浓度等 LLM 输出不确定,改用<a href="eval.html" style="color:var(--gold-2)">行为单调性断言</a>盯回归(实测 4/4 通过)。
+    <br><br>说明:本页为真实后端一次运行的回放,本 demo 线上接 deepseek-chat 实跑,耗时为真实墙钟时间。
+  </div>
+
+</div>
+
+<script>
+const DATA = {
+  scan: {
+    q: { intent: "确认对方是否还有感情", emotion: "不安", focus: "partner" },
+    heart: { percent: 72.3, reasoning: "暧昧期 baseline 40-90，提问“想我吗”敏感度偏高，黏黏糖主动关注暗示对方内心有望，深海冰山表面冷但浓度可能略高，加性格加权后 72.3。" },
+    verdict: "在乎但已悄悄收回伸出的手 · TA 在用沉默克制靠近的冲动",
+    timing: { parallel_qh_ms: 1742, verdict_ms: 1148, total_ms: 2890 }
+  },
+  diary: {
+    entries: [
+      { time:"清晨 07:23", theme:"醒来就想到你", txt:"地铁晃着，耳机里放着歌，我闭着眼想，今天要是能见到你就好了。你总爱在清晨发语音，声音哑哑的，像刚醒。突然空下来，反而不知道该怎么开始这一天。" },
+      { time:"午后 14:32", theme:"在心里跟别人比高低", txt:"你对谁都笑那么温和，我分不清那是对我还是对谁。每次你夸别人一句，我就暗暗拿自己跟人家比一遍。比完了还假装什么都没想。" },
+      { time:"凌晨 01:48", theme:"想先开口又缩回去", txt:"每次见面结束，我都想问你我们算不算在一起。话到嘴边又咽回去，怕把你推远了。你不知道吧，我连做梦都在等你说那句话。" }
+    ],
+    diagnosis: { headline:"等一句话 · 藏了整颗心", body:"你根本不知道，TA 的清晨因为你的一条语音才算开始，你的温和笑容让 TA 在暗地里跟自己较劲。TA 连做梦都在等你开口，却怕一问就把你推远。不是犹豫，是太在乎了。" },
+    timing: { parallel_diaries_ms: 2427, diagnosis_ms: 1821, total_ms: 4248 }
+  }
+};
+
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// 真实耗时播放,稍微压缩让 demo 更紧凑(系数 0.55),但 ms 标签显示真实值
+const SPEED = 0.55;
+
+function runNode(nodeId, msId, realMs){
+  const node = $(nodeId), msEl = $(msId);
+  node.classList.add('active');
+  const start = performance.now();
+  const playMs = realMs * SPEED;
+  return new Promise(resolve => {
+    const tick = () => {
+      const p = Math.min(1, (performance.now()-start)/playMs);
+      msEl.textContent = Math.round(p*realMs) + ' ms';
+      if(p < 1){ requestAnimationFrame(tick); }
+      else { node.classList.remove('active'); node.classList.add('done'); msEl.textContent = realMs+' ms ✓'; resolve(); }
+    };
+    requestAnimationFrame(tick);
+  });
+}
+function show(id){ $(id).classList.add('show'); }
+function reset(ids){ ids.forEach(i=>{ const n=$(i); if(n){n.classList.remove('active','done','show');} }); }
+
+async function runScan(){
+  const b=$('run-scan'); b.disabled=true; b.textContent='运行中…';
+  reset(['n-q','n-heart','n-verdict','out-q','out-heart','out-verdict']);
+  ['ms-q','ms-heart','ms-verdict'].forEach(i=>$(i).textContent='');
+  $('insight-scan').innerHTML='';
+  const d=DATA.scan;
+  // Q + Heart 并行
+  await Promise.all([ runNode('n-q','ms-q',d.timing.parallel_qh_ms), runNode('n-heart','ms-heart',d.timing.parallel_qh_ms) ]);
+  $('out-q-body').innerHTML = `意图:<b style="color:var(--ink)"> ${d.q.intent}</b> · 情绪:<b style="color:var(--ink)"> ${d.q.emotion}</b> · 焦点: ${d.q.focus}`;
+  show('out-q');
+  $('out-heart-pct').textContent = d.heart.percent + '%';
+  $('out-heart-why').textContent = '推演:' + d.heart.reasoning;
+  show('out-heart');
+  await sleep(350);
+  // Verdict 串行
+  await runNode('n-verdict','ms-verdict',d.timing.verdict_ms);
+  $('out-verdict-body').textContent = '"' + d.verdict + '"';
+  show('out-verdict');
+  $('insight-scan').innerHTML = `Q 与 Heart <b>并行</b>,墙钟 ${d.timing.parallel_qh_ms}ms;Verdict 必须等两者齐再写(<b>串行</b>)。多 Agent 拆分让首响应延迟从约 3.2s 降到约 1.7s。`;
+  b.disabled=false; b.textContent='▶ 重新运行';
+}
+
+async function runDiary(){
+  const b=$('run-diary'); b.disabled=true; b.textContent='运行中…';
+  reset(['n-d0','n-d1','n-d2','n-diag','out-diag']);
+  ['ms-d0','ms-d1','ms-d2','ms-diag'].forEach(i=>$(i).textContent='');
+  $('diary-cards').innerHTML=''; $('insight-diary').innerHTML='';
+  const d=DATA.diary;
+  // 3 段并行
+  await Promise.all([
+    runNode('n-d0','ms-d0',d.timing.parallel_diaries_ms),
+    runNode('n-d1','ms-d1',d.timing.parallel_diaries_ms),
+    runNode('n-d2','ms-d2',d.timing.parallel_diaries_ms),
+  ]);
+  const grid=$('diary-cards');
+  d.entries.forEach((e,i)=>{
+    const el=document.createElement('div'); el.className='dcard';
+    el.innerHTML=`<div class="time">${e.time}</div><div class="theme">主题:${e.theme}</div><div class="txt">${e.txt}</div>`;
+    grid.appendChild(el); setTimeout(()=>el.classList.add('show'), 60*i);
+  });
+  await sleep(450);
+  // 诊断串行
+  await runNode('n-diag','ms-diag',d.timing.diagnosis_ms);
+  $('diag-hl').textContent = d.diagnosis.headline;
+  $('diag-bd').textContent = d.diagnosis.body;
+  show('out-diag');
+  $('insight-diary').innerHTML = `3 段心里话输入互相独立 → <b>并行</b>(墙钟 ${d.timing.parallel_diaries_ms}ms,串行约需 3 倍);Diagnosis 必须等 3 段齐才能综合(<b>串行收尾</b>)。`;
+  b.disabled=false; b.textContent='▶ 重新运行';
+}
+
+$('run-scan').onclick=runScan;
+$('run-diary').onclick=runDiary;
+</script>
+</body>
+</html>

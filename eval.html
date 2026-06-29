@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测对儿 · Eval</title>
+<style>
+  :root{
+    --bg:#14111c; --panel:#1c1828; --panel2:#221d31; --line:rgba(212,165,116,.18);
+    --gold:#d4a574; --gold-2:#e8c98a; --gold-soft:rgba(212,165,116,.10); --ink:#ece6d8; --muted:#8f836c;
+    --good:#73daca; --heart:#f7768e; --warn:#e0af68;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#241d33,#14111c 60%);
+    color:var(--ink);font-size:16px;line-height:1.6;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 90px}
+  .brand{font-size:13px;letter-spacing:.3em;color:var(--gold);font-weight:600}
+  h1{font-size:30px;margin:8px 0 8px;letter-spacing:-.3px}
+  .sub{color:var(--muted);margin:0 0 14px;font-size:15px}
+  .sub b{color:var(--gold)}
+  .real-note{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--gold);
+    background:var(--gold-soft);border:1px solid var(--line);border-radius:99px;padding:5px 13px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good)}
+
+  section{margin-top:30px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 24px}
+  .sec-t{font-size:18px;font-weight:600}
+  .sec-q{color:var(--muted);font-size:14px;margin:2px 0 0}
+
+  /* headline metrics */
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px;margin-top:18px}
+  .metric{background:#17131f;border:1px solid var(--line);border-radius:13px;padding:15px 16px}
+  .metric .big{font-size:30px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(180deg,#fff,var(--gold-2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .metric .big.green{background:none;-webkit-text-fill-color:initial;color:var(--good)}
+  .metric .lbl{font-size:12.5px;color:var(--muted);margin-top:4px}
+
+  /* monotonicity chart */
+  .bars{margin-top:18px}
+  .bar-row{display:flex;align-items:center;gap:12px;padding:7px 0}
+  .bar-row .nm{flex:0 0 76px;font-size:13.5px;text-align:right;color:var(--ink)}
+  .bar-row .track{flex:1;height:22px;background:var(--panel2);border-radius:7px;overflow:hidden;position:relative}
+  .bar-row .fill{height:100%;border-radius:7px;transition:width .9s cubic-bezier(.2,.7,.3,1);width:0}
+  .bar-row .v{flex:0 0 80px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .bar-row .v b{color:var(--gold-2)}
+  .lowtag{color:var(--heart)} .hightag{color:var(--good)}
+  .axis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin:6px 0 0 88px}
+
+  .checks{margin-top:18px;display:grid;gap:8px}
+  .check{display:flex;align-items:center;gap:10px;font-size:13.5px;background:#17131f;border:1px solid var(--line);
+    border-radius:10px;padding:10px 13px}
+  .check .ok{flex:0 0 auto;font-size:12px;font-weight:700;color:#1a1320;background:var(--good);border-radius:6px;padding:2px 8px}
+  .check .desc{color:var(--ink)} .check .desc b{color:var(--gold-2)}
+  .check .nums{margin-left:auto;color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+
+  .insight{margin-top:16px;font-size:13.5px;color:var(--muted);border-left:2px solid var(--gold);padding-left:13px}
+  .insight b{color:var(--gold)}
+
+  .method{font-size:13.5px;color:var(--muted);line-height:1.75}
+  .method b{color:var(--ink)}
+  .method code{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-size:12.5px;color:var(--gold-2)}
+  .limit{margin-top:12px;background:linear-gradient(135deg,#1f1a2e,#17131f);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .limit .h{font-size:13px;letter-spacing:.05em;color:var(--warn);font-weight:700;margin-bottom:6px}
+  .limit ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted);line-height:1.7}
+  .limit li b{color:var(--ink)}
+
+  .nav{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap}
+  .nav a{flex:1;min-width:180px;text-decoration:none;background:var(--panel);border:1px solid var(--line);
+    border-radius:13px;padding:14px 16px;color:var(--gold-2);font-weight:600;font-size:14px}
+  .nav a span{display:block;color:var(--muted);font-weight:400;font-size:12.5px;margin-top:3px}
+  .footer{margin-top:26px;font-size:12.5px;color:var(--muted);line-height:1.7}
+  .footer b{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">测对儿 · CEDUI</div>
+  <h1>Eval · 我怎么验证这套 AI</h1>
+  <p class="sub">LLM 的输出不确定,不能凭感觉说"还行"。这页是一次<b>真实跑在线上生产端点</b>的离线评测:不靠人工标注,用<b>可量化的行为属性</b>检验 Heart-Agent 的输出对不对。</p>
+  <span class="real-note"><span class="dot"></span> 2026-06-17 实测 · 直打 <code style="color:var(--gold)">cedui-demo.vercel.app/api/scan</code> · deepseek-chat</span>
+
+  <!-- 头部指标 -->
+  <section>
+    <div class="sec-t">这次评测的结论</div>
+    <div class="sec-q">7 个关系状态 × 4 次重复 = 28 次真实调用(每次含 Q + Heart 两个解析型 Agent)</div>
+    <div class="metrics">
+      <div class="metric"><div class="big green">100%</div><div class="lbl">原始 JSON 解析成功率<br>56/56 一次解析成功 · 兜底 0 次触发</div></div>
+      <div class="metric"><div class="big green">100%</div><div class="lbl">端到端可用率<br>28/28 返回合法结构(percent∈[5,95])</div></div>
+      <div class="metric"><div class="big">4/4</div><div class="lbl">行为单调性断言<br>全部通过</div></div>
+      <div class="metric"><div class="big">3.6s</div><div class="lbl">端到端延迟中位数<br>(多 Agent 并行后)</div></div>
+    </div>
+    <div class="insight" style="margin-top:14px">这里分两个口径,刻意不混:<b>原始解析率</b>=LLM 第一次吐出的就是能解析的 JSON(56/56);<b>端到端可用率</b>=就算解析失败也有 fallback 兜底,用户侧永不中断。这轮兜底一次没用上,但它仍是安全网 —— 这才是"零中断"的真实来源,不是靠运气。</div>
+  </section>
+
+  <!-- 单调性 -->
+  <section>
+    <div class="sec-t">① 行为单调性 · 心动浓度该随关系亲密度走</div>
+    <div class="sec-q">固定双方型号(你·黏黏糖 × TA·深海冰山)、固定问题("TA 还想我吗?"),只变关系状态。心动浓度应当:前任/冷战最低,恋爱/已婚最高。</div>
+
+    <div class="bars" id="bars"></div>
+    <div class="axis"><span>0</span><span>50</span><span>95</span></div>
+
+    <div class="checks" id="checks"></div>
+
+    <div class="insight">没有"标准答案"也能评测:<b>不验证绝对分数,验证相对关系</b>。低信任档(前任 32 / 冷战 39)与高信任档(暧昧 70 / 已婚 72 / 稳定恋爱 75)分离显著且稳定 —— 说明 LLM 的浓度推演是<b>按关系语义在动</b>,不是乱给数。换底层模型时,这套断言就是回归测试。</div>
+  </section>
+
+  <!-- 内容质量 · LLM-as-judge -->
+  <section>
+    <div class="sec-t">② 内容质量 · LLM-as-judge + 评委校准</div>
+    <div class="sec-q">单调性只管数字。但「TA 没说出口的心里话」最大的穿帮风险是 <b style="color:var(--ink)">AI 编造对方做过的一次性事件</b>(如"你今早说想喝豆浆")——用户一眼识破就信任崩。我加了个 judge Agent 专抓这个,再回答一个更狠的问题:<b style="color:var(--ink)">judge 自己可信吗?</b></div>
+    <div class="metrics">
+      <div class="metric"><div class="big green">100%</div><div class="lbl">judge vs 人工标注一致率<br>14/14(含 4 个边界难例)</div></div>
+      <div class="metric"><div class="big green">100%</div><div class="lbl">抓「编造」recall<br>真编造的 7/7 全被抓出(漏抓=穿帮上线)</div></div>
+      <div class="metric"><div class="big green">100%</div><div class="lbl">抓「编造」precision<br>判为编造的 7/7 全属实(0 误杀)</div></div>
+    </div>
+    <div class="insight" style="margin-top:14px"><b>为什么不只看准确率:</b> 真实心里话大多合规,judge 全输出"没编造"也能骗到高准确率(class imbalance)。所以我用 <b>7 编造 + 7 合规的平衡集</b>,专看「编造」这个 fail 类的 <b>precision / recall</b>。<b>recall 最关键</b> —— 漏掉一个编造,就是一次线上穿帮。混淆矩阵:TP=7 / FP=0 / FN=0 / TN=7,judge 自身 JSON 解析 14/14。</div>
+  </section>
+
+  <!-- 方法论 -->
+  <section>
+    <div class="sec-t">③ 方法论 &amp; 诚实的局限</div>
+    <div class="method" style="margin-top:12px">
+      <b>怎么跑的:</b> <code>NODE_USE_ENV_PROXY=1 node eval/run-eval.mjs</code> —— 直接打线上 serverless 端点,测的是真实生产路径(不是本地 mock)。每档重复 4 次取中位数,抹掉 LLM 单次随机(Heart-Agent 带 ±5 抖动)。节流 2.5s/次以避开 30/min 限流。结果落 <code>eval/results.json</code>,可复跑。
+    </div>
+    <div class="limit">
+      <div class="h">这套 eval 还不能做什么(没说能,就是没做)</div>
+      <ul>
+        <li><b>不是 accuracy:</b> "心动浓度"没有客观真值,只能测方向一致性,测不了"72% 对不对"。</li>
+        <li><b>N=1 · 无真实用户:</b> 样本是我构造的代表性输入,不是线上流量分布。</li>
+        <li><b>judge 的样本还小:</b> 评委校准只用了 14 例平衡 golden set、且 case 是我构造的。100% 一致是"在这个集上",不等于线上零漏判。下一步是<b>把线上真实生成的 badcase 持续喂进 golden set</b>,让校准集长大、更像真实分布。</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="nav">
+    <a href="xray.html">🔍 Agent 透视 <span>看 7 个 Agent 怎么并行/串行协作</span></a>
+    <a href="typedex.html">📖 型号图鉴 <span>16 型 + 32 CP + 4 字母含义</span></a>
+    <a href="index.html">← 回到测对儿 <span>自己测一次</span></a>
+  </div>
+
+  <div class="footer">
+    <b>为什么 AI PM 要做这个:</b> 产品承诺"算分可验证、换模型不回归"。确定性的契合分天然可验证;不确定的 LLM 输出,就得靠 eval 把"行为对不对"变成能盯住的数字。这页就是那把尺子。
+    <br><br>本页数字均为 2026-06 真实评测结果(原始解析 56/56、端到端 28/28、单调性 4/4、judge 校准 14/14),非演示占位,<code>eval/</code> 下脚本与结果可查可复跑。
+  </div>
+
+</div>
+
+<script>
+// 来自 eval/results.json(2026-06-17 带解析埋点那轮),按中位数升序展示
+const BY_REL = [
+  { nm:'前任',     median:32.45, tag:'low'  },
+  { nm:'冷战中',   median:38.75, tag:'low'  },
+  { nm:'暗恋',     median:46.75, tag:''     },
+  { nm:'正在暧昧', median:70.3,  tag:'high' },
+  { nm:'已婚',     median:72.35, tag:'high' },
+  { nm:'异地恋',   median:72.5,  tag:''     },
+  { nm:'稳定恋爱中',median:75.2,  tag:'high' },
+];
+const CHECKS = [
+  { lo:'冷战中', hi:'正在暧昧',   ml:38.75, mh:70.3  },
+  { lo:'前任',   hi:'稳定恋爱中', ml:32.45, mh:75.2  },
+  { lo:'冷战中', hi:'已婚',       ml:38.75, mh:72.35 },
+  { lo:'前任',   hi:'正在暧昧',   ml:32.45, mh:70.3  },
+];
+
+const $ = s => document.querySelector(s);
+const MAX = 95;
+const COLOR = { low:'linear-gradient(90deg,#b85c6b,#f7768e)', high:'linear-gradient(90deg,#3f9d8f,#73daca)', '':'linear-gradient(90deg,#c79a64,#e8c98a)' };
+
+const bars = $('#bars');
+BY_REL.forEach(r => {
+  const row = document.createElement('div'); row.className = 'bar-row';
+  row.innerHTML = `<div class="nm">${r.nm}</div>
+    <div class="track"><div class="fill" style="background:${COLOR[r.tag]}"></div></div>
+    <div class="v"><b>${r.median}%</b></div>`;
+  bars.appendChild(row);
+  const fill = row.querySelector('.fill');
+  requestAnimationFrame(()=>{ setTimeout(()=>{ fill.style.width = (r.median/MAX*100).toFixed(1)+'%'; }, 80); });
+});
+
+const checks = $('#checks');
+CHECKS.forEach(c => {
+  const el = document.createElement('div'); el.className = 'check';
+  el.innerHTML = `<span class="ok">PASS</span>
+    <span class="desc"><b>${c.lo}</b> 应低于 <b>${c.hi}</b></span>
+    <span class="nums">${c.ml} &lt; ${c.mh}</span>`;
+  checks.appendChild(el);
+});
+</script>
+</body>
+</html>

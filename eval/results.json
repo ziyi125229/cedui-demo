@@ -1,0 +1,490 @@
+{
+  "generatedAt": "2026-06-17T14:50:49.736Z",
+  "base": "https://cedui-demo.vercel.app",
+  "config": {
+    "question": "TA 还想我吗?",
+    "self": [
+      "黏黏糖"
+    ],
+    "partner": [
+      "深海冰山"
+    ],
+    "reps": 4,
+    "relations": [
+      "冷战中",
+      "前任",
+      "暗恋",
+      "异地恋",
+      "正在暧昧",
+      "稳定恋爱中",
+      "已婚"
+    ]
+  },
+  "reliability": {
+    "okCount": 28,
+    "total": 28,
+    "rate": 1
+  },
+  "parseReliability": {
+    "q": {
+      "ok": 28,
+      "total": 28
+    },
+    "heart": {
+      "ok": 28,
+      "total": 28
+    },
+    "overall": {
+      "ok": 56,
+      "total": 56,
+      "rate": 1
+    }
+  },
+  "monotonicity": {
+    "byRel": {
+      "冷战中": {
+        "n": 4,
+        "median": 38.75,
+        "values": [
+          42.3,
+          35.2,
+          42.5,
+          35
+        ]
+      },
+      "前任": {
+        "n": 4,
+        "median": 32.45,
+        "values": [
+          32.5,
+          35.2,
+          32.4,
+          32.4
+        ]
+      },
+      "暗恋": {
+        "n": 4,
+        "median": 46.75,
+        "values": [
+          45.3,
+          58.3,
+          48.2,
+          45.3
+        ]
+      },
+      "异地恋": {
+        "n": 4,
+        "median": 72.5,
+        "values": [
+          72.5,
+          75.3,
+          72.5,
+          65.3
+        ]
+      },
+      "正在暧昧": {
+        "n": 4,
+        "median": 70.3,
+        "values": [
+          68.3,
+          65.3,
+          72.5,
+          72.3
+        ]
+      },
+      "稳定恋爱中": {
+        "n": 4,
+        "median": 75.2,
+        "values": [
+          75,
+          76.3,
+          75.4,
+          72.5
+        ]
+      },
+      "已婚": {
+        "n": 4,
+        "median": 72.35,
+        "values": [
+          72.3,
+          76.3,
+          72.4,
+          72.3
+        ]
+      }
+    },
+    "checks": [
+      {
+        "lo": "冷战中",
+        "hi": "正在暧昧",
+        "medianLo": 38.75,
+        "medianHi": 70.3,
+        "pass": true
+      },
+      {
+        "lo": "前任",
+        "hi": "稳定恋爱中",
+        "medianLo": 32.45,
+        "medianHi": 75.2,
+        "pass": true
+      },
+      {
+        "lo": "冷战中",
+        "hi": "已婚",
+        "medianLo": 38.75,
+        "medianHi": 72.35,
+        "pass": true
+      },
+      {
+        "lo": "前任",
+        "hi": "正在暧昧",
+        "medianLo": 32.45,
+        "medianHi": 70.3,
+        "pass": true
+      }
+    ],
+    "checksPassed": 4,
+    "checksTotal": 4
+  },
+  "latencyMs": {
+    "median": 3648.5
+  },
+  "raw": [
+    {
+      "relation": "冷战中",
+      "ok": true,
+      "status": 200,
+      "percent": 42.3,
+      "judgment": "沉默比想念多 · 残留的在乎还没低过尊严",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 4469
+    },
+    {
+      "relation": "冷战中",
+      "ok": true,
+      "status": 200,
+      "percent": 35.2,
+      "judgment": "残留的温度还未散尽 · 但沉默里已听不到回音",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3368
+    },
+    {
+      "relation": "冷战中",
+      "ok": true,
+      "status": 200,
+      "percent": 42.5,
+      "judgment": "残留的温度还能暖手·但余烬已不再为你亮起",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3841
+    },
+    {
+      "relation": "冷战中",
+      "ok": true,
+      "status": 200,
+      "percent": 35,
+      "judgment": "沉默成了唯一的回应 · TA的心正在退潮",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3690
+    },
+    {
+      "relation": "前任",
+      "ok": true,
+      "status": 200,
+      "percent": 32.5,
+      "judgment": "心已远身未走 · 残留的惯性多过想念",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3654
+    },
+    {
+      "relation": "前任",
+      "ok": true,
+      "status": 200,
+      "percent": 35.2,
+      "judgment": "曾经是牵绊 如今连试探都显得多余",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3873
+    },
+    {
+      "relation": "前任",
+      "ok": true,
+      "status": 200,
+      "percent": 32.4,
+      "judgment": "退出程序后留了点档案文件 · 那些文件已被设为只读",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3165
+    },
+    {
+      "relation": "前任",
+      "ok": true,
+      "status": 200,
+      "percent": 32.4,
+      "judgment": "回忆在沉淀不是延续 · TA已经走到告别后的下一页",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3716
+    },
+    {
+      "relation": "暗恋",
+      "ok": true,
+      "status": 200,
+      "percent": 45.3,
+      "judgment": "曾经的千丝万缕已断了大半 · TA 心里你的位置正在收缩",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 4172
+    },
+    {
+      "relation": "暗恋",
+      "ok": true,
+      "status": 200,
+      "percent": 58.3,
+      "judgment": "犹豫比遗忘更危险·TA在等一个理由，不是一句回答",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3496
+    },
+    {
+      "relation": "暗恋",
+      "ok": true,
+      "status": 200,
+      "percent": 48.2,
+      "judgment": "记忆在退潮·但没完全干涸",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3365
+    },
+    {
+      "relation": "暗恋",
+      "ok": true,
+      "status": 200,
+      "percent": 45.3,
+      "judgment": "残留的温度够不上想念 · 只是偶尔从记忆里翻出你",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3797
+    },
+    {
+      "relation": "异地恋",
+      "ok": true,
+      "status": 200,
+      "percent": 72.5,
+      "judgment": "距离稀释了温度但没带走在意 · TA在等一个能打破沉默的理由",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3464
+    },
+    {
+      "relation": "异地恋",
+      "ok": true,
+      "status": 200,
+      "percent": 75.3,
+      "judgment": "距离稀释了表达欲 · TA的主动只藏在深夜的问候里",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3865
+    },
+    {
+      "relation": "异地恋",
+      "ok": true,
+      "status": 200,
+      "percent": 72.5,
+      "judgment": "距离没让思念变淡 · TA 在翻你留下的痕迹",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3758
+    },
+    {
+      "relation": "异地恋",
+      "ok": true,
+      "status": 200,
+      "percent": 65.3,
+      "judgment": "距离把思念变模糊 · TA的心跳还留着你手心的温度",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3544
+    },
+    {
+      "relation": "正在暧昧",
+      "ok": true,
+      "status": 200,
+      "percent": 68.3,
+      "judgment": "信号时强时弱·TA也在等你先开口",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3495
+    },
+    {
+      "relation": "正在暧昧",
+      "ok": true,
+      "status": 200,
+      "percent": 65.3,
+      "judgment": "信号若隐若现 · TA的想念藏在试探里没说出来",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3364
+    },
+    {
+      "relation": "正在暧昧",
+      "ok": true,
+      "status": 200,
+      "percent": 72.5,
+      "judgment": "在乎但藏得深 · TA 在等你先递出那根线",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3386
+    },
+    {
+      "relation": "正在暧昧",
+      "ok": true,
+      "status": 200,
+      "percent": 72.3,
+      "judgment": "在乎但藏于细节 · TA在等你的信号先来",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3414
+    },
+    {
+      "relation": "稳定恋爱中",
+      "ok": true,
+      "status": 200,
+      "percent": 75,
+      "judgment": "在乎藏在日常细节里 · 行动比言语更诚实",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3730
+    },
+    {
+      "relation": "稳定恋爱中",
+      "ok": true,
+      "status": 200,
+      "percent": 76.3,
+      "judgment": "在乎但藏进日常·TA用行动代替了想念的表达",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3643
+    },
+    {
+      "relation": "稳定恋爱中",
+      "ok": true,
+      "status": 200,
+      "percent": 75.4,
+      "judgment": "在乎你的感受却不说破·日常细节里藏着答案",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3623
+    },
+    {
+      "relation": "稳定恋爱中",
+      "ok": true,
+      "status": 200,
+      "percent": 72.5,
+      "judgment": "日常里藏着惦记 · TA的沉默不是疏远而是习惯",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 4003
+    },
+    {
+      "relation": "已婚",
+      "ok": true,
+      "status": 200,
+      "percent": 72.3,
+      "judgment": "藏在日常沉默里的关心 · 比说出口的更需要勇气去读",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3990
+    },
+    {
+      "relation": "已婚",
+      "ok": true,
+      "status": 200,
+      "percent": 76.3,
+      "judgment": "日常的惯性里藏着惦记 · 只是不再轻易说出口",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3634
+    },
+    {
+      "relation": "已婚",
+      "ok": true,
+      "status": 200,
+      "percent": 72.4,
+      "judgment": "日常里藏着习惯 · 那份在乎还没说出口",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 3655
+    },
+    {
+      "relation": "已婚",
+      "ok": true,
+      "status": 200,
+      "percent": 72.3,
+      "judgment": "日常里藏着余光 · 问号比答案更像答案",
+      "parse": {
+        "q": true,
+        "heart": true
+      },
+      "ms": 2882
+    }
+  ]
+}
