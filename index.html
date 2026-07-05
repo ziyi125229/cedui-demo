@@ -2,8 +2,24 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>测对儿 · 关系契合度分析</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测对儿 · 你俩到底合不合?</title>
+<meta name="description" content="60 秒算出你和 TA 的契合指数 + AI 关系侧写,还能猜 TA 没说出口的心里话。16 型号 · 136 组 CP 全覆盖。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="测对儿 CEDUI">
+<meta property="og:title" content="测对儿 · 你俩到底合不合?">
+<meta property="og:description" content="算法当场判定关系型号 + 多 Agent AI 关系侧写,还能猜 TA 没说出口的心里话。你也来测一个。">
+<meta property="og:url" content="https://cedui-demo.vercel.app/">
+<meta property="og:image" content="https://cedui-demo.vercel.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="测对儿 · 你俩到底合不合?">
+<meta name="twitter:description" content="算法判定关系型号 + AI 关系侧写,还能猜 TA 没说出口的心里话。">
+<meta name="twitter:image" content="https://cedui-demo.vercel.app/og.png">
+<!-- Vercel Web Analytics(需在 Vercel 项目后台开启 Analytics 后生效) -->
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <style>
   :root{
     --bg:#14111c; --bg2:#1b1626; --panel:#1f1a2c; --panel2:#251f35; --line:rgba(212,165,116,.18);
@@ -233,6 +249,7 @@
 
   <!-- 报告 -->
   <div id="report">
+    <div id="shared-banner" style="display:none"></div>
     <div class="reveal" id="reveal"></div>
     <div class="card">
       <div style="text-align:center;padding:6px 0 4px"><div class="ring">
@@ -328,15 +345,12 @@ document.querySelectorAll('.shuffle').forEach(s=>s.onclick=()=>{const who=s.data
 document.querySelectorAll('.gender').forEach(g=>{const who=g.dataset.who;g.querySelectorAll('.gbtn').forEach(b=>b.onclick=()=>{st[who].gender=b.dataset.g;g.querySelectorAll('.gbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');});});
 $('self-desc').oninput=checkMiss;$('partner-desc').oninput=checkMiss;
 
-function render(){
-  if(!checkMiss())return;
-  const a=inferType({archetypes:[...st.self.arch],supplements:[...st.self.tags]})||'ISGA';
-  const b=inferType({archetypes:[...st.partner.arch],supplements:[...st.partner.tags]})||'ISGA';
-  const rel=$('relation').value; const r=calcCompatibility(a,b,rel);
-  $('input-screen').style.display='none'; $('game-screen').style.display='none'; $('report').style.display='block'; window._ctx={a,b,rel,score:r.score,cp:getCPName(a,b)};
-  const exA=explainType([...st.self.arch],[...st.self.tags]);const exB=explainType([...st.partner.arch],[...st.partner.tags]);
-  $('reveal').innerHTML=`<div class="lab">算法判定结果</div><div class="pair">你 → <b>${TYPES[a].nickname}</b> <span class="code">${a}</span> &nbsp;×&nbsp; TA → <b>${TYPES[b].nickname}</b> <span class="code">${b}</span></div>`
-    +`<details class="why"><summary>型号怎么判出来的? · 确定性 · 可验证</summary>${explainHTML('你',a,exA)}${explainHTML('TA',b,exB)}</details>`;
+// 轻量埋点(Vercel Analytics 自定义事件)
+function track(name,data){try{window.va&&window.va('event',data?{name,data}:{name});}catch(e){}}
+// 报告主体(契合分/环/维度/画像)——只依赖 a/b/rel,render 与分享页共用
+function paintReportCore(a,b,rel){
+  const r=calcCompatibility(a,b,rel);
+  window._ctx={a,b,rel,score:r.score,cp:getCPName(a,b)};
   const circ=440,off=circ*(1-r.score/100),ring=$('ring-fg');ring.style.transition='none';ring.style.strokeDashoffset=circ;
   requestAnimationFrame(()=>{ring.style.transition='stroke-dashoffset 1s ease';ring.style.strokeDashoffset=off;});
   let n=0;const step=Math.max(1,Math.round(r.score/40));clearInterval(window._t);window._t=setInterval(()=>{n+=step;if(n>=r.score){n=r.score;clearInterval(window._t);}$('score').textContent=n;},22);
@@ -344,9 +358,46 @@ function render(){
   const dims=$('dims');dims.innerHTML='';r.breakdown.forEach(d=>{const el=document.createElement('div');el.className='dim';el.innerHTML=`<div class="nm">${d.name}</div><div class="letters">你<b>${d.letterA}</b> · TA<b>${d.letterB}</b></div><div class="bar"><i style="width:${d.value/d.full*100}%"></i></div><div class="v">${d.value}<span class="tg">${d.label}</span></div>`;dims.appendChild(el);});
   $('type-score').textContent=r.typeScore;$('rel-bonus').textContent=(r.relationBonus>=0?'+':'')+r.relationBonus;$('final-score').textContent=r.score;
   const por=$('portraits');por.innerHTML='';[[a,'你'],[b,'TA']].forEach(([c,who])=>{const el=document.createElement('div');el.className='portrait';el.innerHTML=`<div class="h">${who} · ${TYPES[c].nickname}<span class="code">${c}</span></div><div class="p">${TYPES[c].portrait}</div>`;por.appendChild(el);});
+  return r;
+}
+function render(){
+  if(!checkMiss())return;
+  const a=inferType({archetypes:[...st.self.arch],supplements:[...st.self.tags]})||'ISGA';
+  const b=inferType({archetypes:[...st.partner.arch],supplements:[...st.partner.tags]})||'ISGA';
+  const rel=$('relation').value;
+  $('input-screen').style.display='none'; $('game-screen').style.display='none'; $('report').style.display='block';
+  hideSharedBanner();
+  const exA=explainType([...st.self.arch],[...st.self.tags]);const exB=explainType([...st.partner.arch],[...st.partner.tags]);
+  $('reveal').innerHTML=`<div class="lab">算法判定结果</div><div class="pair">你 → <b>${TYPES[a].nickname}</b> <span class="code">${a}</span> &nbsp;×&nbsp; TA → <b>${TYPES[b].nickname}</b> <span class="code">${b}</span></div>`
+    +`<details class="why"><summary>型号怎么判出来的? · 确定性 · 可验证</summary>${explainHTML('你',a,exA)}${explainHTML('TA',b,exB)}</details>`;
+  paintReportCore(a,b,rel);
   fillReportAI(a,b,rel);
+  updateShareURL(a,b,rel);
+  track('report_view',{score:window._ctx.score});
   window.scrollTo({top:0,behavior:'smooth'});
 }
+// 把当前结果写进地址栏(分享/邀请用)
+function updateShareURL(a,b,rel){try{const u=new URL(location.href);u.searchParams.set('a',a);u.searchParams.set('b',b);u.searchParams.set('rel',rel);history.replaceState(null,'',u.toString());}catch(e){}}
+function buildShareUrl(c){try{const u=new URL(location.href);if(c&&c.a)u.searchParams.set('a',c.a);if(c&&c.b)u.searchParams.set('b',c.b);if(c&&c.rel)u.searchParams.set('rel',c.rel);return u.toString();}catch(e){return location.href;}}
+function hideSharedBanner(){const b=$('shared-banner');if(b){b.style.display='none';b.innerHTML='';}}
+function showSharedBanner(){const b=$('shared-banner');if(!b)return;b.style.display='block';
+  b.innerHTML=`<div style="background:linear-gradient(135deg,#2a2140,#1b1626);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px;text-align:center">
+    <div style="font-size:13.5px;color:var(--gold-2);font-weight:700">💌 这是 TA 分享给你的契合结果</div>
+    <div style="font-size:12px;color:var(--muted);margin:6px 0 11px">想知道你和别人合不合?自己也测一个 ↓</div>
+    <button id="sb-go" style="background:var(--gold);color:#1a1320;border:none;border-radius:10px;padding:9px 22px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit">我也测一个 →</button></div>`;
+  $('sb-go').onclick=resetToInput;
+}
+// 通过链接进入的分享结果页(访客视角,无 st 数据)
+function showSharedReport(a,b,rel){
+  $('input-screen').style.display='none';$('game-screen').style.display='none';$('detector-screen').style.display='none';$('report').style.display='block';
+  showSharedBanner();
+  $('reveal').innerHTML=`<div class="lab">TA 分享的契合结果</div><div class="pair"><b>${TYPES[a].nickname}</b> <span class="code">${a}</span> &nbsp;×&nbsp; <b>${TYPES[b].nickname}</b> <span class="code">${b}</span></div>`;
+  paintReportCore(a,b,rel);
+  loadAI(a,b,rel);
+  track('shared_view',{pair:a+'|'+b});
+  window.scrollTo({top:0});
+}
+function resetToInput(){$('report').style.display='none';$('game-screen').style.display='none';$('detector-screen').style.display='none';hideSharedBanner();$('input-screen').style.display='block';try{history.replaceState(null,'',location.pathname);}catch(e){}window.scrollTo({top:0,behavior:'smooth'});}
 // 报告页 AI 侧写：心里话直接复用「猜心里话」环节已揭开的内容,只补一次 scan 拿心动浓度
 async function fillReportAI(a,b,rel){
   if(det.diaries&&det.diaries.length){
@@ -392,7 +443,7 @@ function buildGame(){
       if(order.length===5){setTimeout(()=>{$('game-screen').style.display='none';startDetector();},850);}};
     svg.appendChild(c);});
 }
-function startGame(){if(!checkMiss())return;$('input-screen').style.display='none';$('game-screen').style.display='block';window.scrollTo({top:0});buildGame();}
+function startGame(){if(!checkMiss())return;track('start_test');$('input-screen').style.display='none';$('game-screen').style.display='block';window.scrollTo({top:0});buildGame();}
 $('go').onclick=startGame;
 
 /* ===== 猜心里话环节(牵红线 → 报告 之间) ===== */
@@ -482,6 +533,7 @@ function pickGuess(idx,guess){
   if(det.active!==idx)return;
   const entry=det.diaries[idx];
   entry.userGuess=guess;entry.guessCorrect=(guess===entry.theme);entry.revealed=true;entry.display='';
+  track('guess_submit',{correct:entry.guessCorrect});
   det.active=-1;renderDetector();streamContent(idx);
 }
 function streamContent(idx){
@@ -494,6 +546,7 @@ function streamContent(idx){
   },38);
 }
 function showDetectorDone(){
+  track('guess_all_done');
   const d=det.diagnosis;
   $('det-done').innerHTML=`<div class="ddiag">`
     +(d?`<div class="dl">— 综 合 判 读 —</div><div class="hl">${esc(d.headline||'')}</div><div class="bd">${esc(d.body||'')}</div>`:'')
@@ -502,7 +555,7 @@ function showDetectorDone(){
   $('det-done').scrollIntoView({behavior:'smooth',block:'end'});
 }
 function enterReport(){$('detector-screen').style.display='none';render();}
-$('retry').onclick=()=>{$('report').style.display='none';$('game-screen').style.display='none';$('detector-screen').style.display='none';$('input-screen').style.display='block';window.scrollTo({top:0,behavior:'smooth'});};
+$('retry').onclick=resetToInput;
 async function askTA(){
   const q=$('ask-q').value.trim();if(!q)return;const c=window._ctx||{};
   $('ask-result').innerHTML='<span style="color:var(--muted);font-size:13px">TA 正在回话…(首次冷启动稍慢)</span>';
@@ -540,15 +593,34 @@ function makeShareCard(){
 }
 $('share').onclick=()=>{
   const url=makeShareCard();if(!url)return;
+  const shareUrl=buildShareUrl(window._ctx);
+  track('share_open');
+  const btn='background:#251f35;color:#e8c98a;border:1px solid rgba(212,165,116,.4);font-weight:700;padding:11px 20px;border-radius:11px;font-size:14px;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-block';
   const ov=document.createElement('div');
   ov.style.cssText='position:fixed;inset:0;background:rgba(8,6,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99;padding:20px';
-  ov.innerHTML=`<img src="${url}" style="max-width:88%;max-height:66vh;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.5)"/>
-    <div style="color:#cfc7b6;margin-top:16px;font-size:13.5px">长按图片保存,或</div>
-    <a href="${url}" download="测对儿-契合卡.png" style="margin-top:10px;background:#d4a574;color:#1a1320;text-decoration:none;font-weight:700;padding:11px 26px;border-radius:11px">下载分享卡</a>
+  ov.innerHTML=`<img src="${url}" style="max-width:88%;max-height:56vh;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.5)"/>
+    <div style="color:#cfc7b6;margin-top:16px;font-size:13.5px">长按图片保存 · 或复制链接邀请 TA 一起测</div>
+    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;justify-content:center">
+      <a href="${url}" download="测对儿-契合卡.png" style="${btn}">⬇ 下载卡片</a>
+      <button id="ov-copy" style="${btn}">🔗 复制邀请链接</button>
+      ${navigator.share?`<button id="ov-native" style="${btn}">📤 系统分享</button>`:''}
+    </div>
     <div id="ov-x" style="color:#8f836c;margin-top:18px;cursor:pointer;font-size:14px">关闭</div>`;
   document.body.appendChild(ov);
+  const copyBtn=ov.querySelector('#ov-copy');
+  copyBtn.onclick=()=>{const done=()=>{copyBtn.textContent='✓ 已复制,去粘给 TA';track('invite_copy');};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(shareUrl).then(done).catch(()=>{prompt('复制这个链接邀请 TA:',shareUrl);});}
+    else{prompt('复制这个链接邀请 TA:',shareUrl);done();}};
+  const nat=ov.querySelector('#ov-native');
+  if(nat)nat.onclick=()=>{navigator.share({title:'测对儿 · 我俩的契合结果',text:'看看我们合不合,你也来测一个 👀',url:shareUrl}).then(()=>track('share_native')).catch(()=>{});};
   const close=()=>ov.remove();ov.querySelector('#ov-x').onclick=close;ov.onclick=e=>{if(e.target===ov)close();};
 };
+// 首屏:若地址栏带 ?a=&b=&rel= 且合法 → 直接展示 TA 分享的结果页
+(function applyShareParams(){try{
+  const p=new URLSearchParams(location.search);const a=p.get('a'),b=p.get('b'),rel=p.get('rel');
+  const RE=/^[EI][FS][OG][CA]$/;
+  if(a&&b&&RE.test(a)&&RE.test(b)&&TYPES[a]&&TYPES[b]){showSharedReport(a,b,rel||'正在暧昧');}
+}catch(e){}})();
 </script>
 </body>
 </html>
